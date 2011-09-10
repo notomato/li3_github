@@ -11,7 +11,12 @@ use \lithium\util\String;
  * @author John Anderson
  */
 class GitHub extends \lithium\data\source\Http {
-	
+
+	protected $_strings = array(
+		'issues' => '/issues',
+		'repos' => '/repos/{:user}/{:repo}/{:type}/{:id}'
+	);
+
 	/**
 	 * Class dependencies.
 	 */
@@ -20,7 +25,7 @@ class GitHub extends \lithium\data\source\Http {
 		'entity' => 'lithium\data\entity\Document',
 		'set' => 'lithium\data\collection\DocumentSet',
 	);
-	
+
 	/**
 	 * Constructor.
 	 *
@@ -40,47 +45,60 @@ class GitHub extends \lithium\data\source\Http {
 			'scheme'   => 'https',
 			'auth'     => 'Basic',
 			'version'  => '1.1',
+			'host'     => 'api.github.com',
 			'port'     => 443,
-			'basePath' => '/api/v2/json',
+			'path'     => '',
 		);
-		$config['host']     = 'github.com';
-		$config['login']    = $login;
-		$config['password'] = $password;
-		parent::__construct($config + $defaults);
+		parent::__construct(compact('login', 'password') + $config + $defaults);
 	}
-	
+
 	/**
 	 * Data source READ operation.
 	 *
-	 * @param string $query 
-	 * @param array $options 
+	 * @param string $query
+	 * @param array $options
 	 * @return mixed
 	 */
 	public function read($query, array $options = array()) {
 		extract($query->export($this));
-		$path = '';
-		switch ($source) {
-			case 'issues':
-				$path = String::insert(
-					'/issues/list/{:user}/{:repo}/{:state}',
-					array(
-						'user'  => urlencode($conditions['user']),
-						'repo'  => urlencode($conditions['repo']),
-						'state' => urlencode($conditions['state']),
-					)
-				);
-			break;
+		$path = $this->_path($source, $conditions);
+		unset($conditions['type'], $conditions['user'], $conditions['repo']);
+		$result = $this->connection->get($path, $conditions);
+		$data = json_decode($result, true);
+
+		if (empty($data)) {
+			return null;
 		}
-		$data = json_decode($this->connection->get($this->_config['basePath'] . $path), true);
-		return $this->item($query->model(), $data[$source], array('class' => 'set'));
+		return $this->item($query->model(), $data, array('class' => 'set'));
 	}
-	
+
+	/**
+	 * Data Source CREATE operation.
+	 *
+	 * @param string $query
+	 * @param array $options
+	 * @return mixed
+	 */
+	public function create($query, array $options = array()) {
+		extract($query->export($this));
+		$conditions = $query->entity()->_config;
+		$path = $this->_path($source, $conditions);
+		$options = array(
+			'headers' => array('Content-Type' => 'application/json'),
+			'follow_location' => false,
+			'type' => 'json'
+		);
+		$result = $this->connection->post($path, json_encode($data['data']), $options);
+		$data = json_decode($result);
+		return isset($data);
+	}
+
 	/**
 	 * Used for object formatting.
 	 *
-	 * @param string $entity 
-	 * @param array $data 
-	 * @param array $options 
+	 * @param string $entity
+	 * @param array $data
+	 * @param array $options
 	 * @return mixed
 	 */
 	public function cast($entity, array $data, array $options = array()) {
@@ -96,29 +114,22 @@ class GitHub extends \lithium\data\source\Http {
 	}
 
 	/**
-	 * Data Source CREATE operation.
+	 * Convert conditions to a path
 	 *
-	 * @param string $query 
-	 * @param array $options 
-	 * @return mixed
+	 * @param string $source
+	 * @param array $conditions
+	 * @return string
 	 */
-	public function create($query, array $options = array()) {
-		extract($query->export($this));
-		$path = '';
-		switch ($source) {
-			case 'issues':
-				extract($query->entity()->data());
-				$path = String::insert(
-					'/issues/open/{:user}/{:repo}',
-					array(
-						'user'  => urlencode($user),
-						'repo'  => urlencode($repo),
-					)
-				);
-				$data = compact('title', 'body');
-			break;
+	protected function _path($source, array $conditions = array()) {
+		if (!isset($this->_strings[$source])) {
+			return null;
 		}
-		$result = json_decode($this->connection->post($this->_config['basePath'] . $path, $data), true);
-		return isset($return[$source]);
-  }
+		$string = $this->_strings[$source];
+		$conditions = array_map(function($value) {
+			return is_string($value) ? urlencode($value) : null;
+		}, $conditions);
+		$path = String::insert($string, $conditions, array('clean' => true));
+		$path = rtrim(str_replace('//', '', $path), '/');
+		return $path;
+	}
 }
