@@ -18,8 +18,9 @@ class GithubTest extends \lithium\test\Unit {
 		Connections::add('test-gh', array(
 			'type' => 'Http',
 			'adapter' => 'Github',
-			'login' => 'apiheadbanger',
-			'password' => 'testing1',
+			'login' => '',
+			'password' => '',
+			'socket' => 'li3_github\tests\mocks\MockGithubSocket'
 		));
 		Issues::config(array('connection' => 'test-gh'));
 		Repos::config(array('connection' => 'test-gh'));
@@ -30,7 +31,7 @@ class GithubTest extends \lithium\test\Unit {
 		$headers = array('Content-Type' => 'application/json');
 		$expected = 'User';
 		$results = json_decode(
-			$gh->connection->get('users/whatever', array(), compact('headers'))
+			$gh->connection->get('users/octocat', array(), compact('headers'))
 		);
 		$this->assertEqual($expected, $results->type);
 	}
@@ -39,17 +40,18 @@ class GithubTest extends \lithium\test\Unit {
 		$gh = Connections::get('test-gh');
 		$query = new Query(array('model' => $this->_models['issues']));
 		$results = $gh->read($query);
-		$expected = array();
-		$this->assertEqual($expected, $results);
+		$expected = 'octocat';
+		$result = $results->first();
+		$this->assertEqual($expected, $result->user->login);
 	}
 
 	public function testRepoIssues() {
 		$issues = Repos::issues(array(
 			'conditions' => array(
-				'user' => 'apiheadbanger', 'repo' => 'demo'
+				'user' => 'octocat', 'repo' => 'Hello-World'
 			)
 		));
-		$expected = 'apiheadbanger';
+		$expected = 'octocat';
 		$result = $issues->first();
 		$this->assertEqual($expected, $result->user->login);
 	}
@@ -70,19 +72,19 @@ class GithubTest extends \lithium\test\Unit {
 	public function testRepoIssuesWithSortCreatedAsc() {
 		$issues = Repos::issues(array(
 			'conditions' => array(
-				'user' => 'apiheadbanger', 'repo' => 'demo',
+				'user' => 'octocat', 'repo' => 'Hello-World',
 				'sort' => 'created', 'direction' => 'asc'
 			)
 		));
-		$expected = '1';
+		$expected = '1347';
 		$result = $issues->first();
 		$this->assertEqual($expected, $result->number);
 	}
-	
+
 	public function testRepoIssuesWithSortCreatedDesc() {
 		$issues = Repos::issues(array(
 			'conditions' => array(
-				'user' => 'apiheadbanger', 'repo' => 'demo',
+				'user' => 'octocat', 'repo' => 'Hello-World',
 				'sort' => 'created', 'direction' => 'desc'
 			)
 		));

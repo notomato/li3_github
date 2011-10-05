@@ -14,7 +14,12 @@ class GitHub extends \lithium\data\source\Http {
 
 	protected $_strings = array(
 		'issues' => '/issues',
-		'repos' => '/repos/{:user}/{:repo}/{:type}/{:id}'
+		'repos' => '/repos/{:user}/{:repo}/{:type}/{:id}',
+		'orgs' => '/orgs/{:org}/{:type}'
+	);
+
+	protected $_params = array(
+		'user', 'repo', 'type', 'id', 'org'
 	);
 
 	/**
@@ -62,7 +67,9 @@ class GitHub extends \lithium\data\source\Http {
 	public function read($query, array $options = array()) {
 		extract($query->export($this));
 		$path = $this->_path($source, $conditions);
-		unset($conditions['type'], $conditions['user'], $conditions['repo']);
+		foreach ($this->_params as $param) {
+			unset($conditions[$param]);
+		}
 		$result = $this->connection->get($path, $conditions);
 		$data = json_decode($result, true);
 
