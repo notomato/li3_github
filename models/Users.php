@@ -2,9 +2,6 @@
 
 namespace li3_github\models;
 
-use lithium\storage\Cache;
-use lithium\data\collection\DocumentSet;
-
 class Users extends \lithium\data\Model {
 	
 	protected $_meta = array('connection' => 'github');
