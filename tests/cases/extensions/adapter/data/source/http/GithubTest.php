@@ -113,4 +113,17 @@ class GithubTest extends \lithium\test\Unit {
 		$result = $repos->first();
 		$this->assertEqual($result->name, 'Hello-World');
 	}
+	
+	public function testUserOrgs() {
+		$orgs = Users::orgs(array(
+			'conditions' => array(
+				'user' => 'octocat'
+			)
+		));
+		
+		$result = $orgs->first();
+		$this->assertEqual($orgs->login, 'github');
+		$this->assertEqual($orgs->id, 1);
+		$this->assertEqual($orgs->url, 'https://api.github.com/orgs/1');
+	}
 }
