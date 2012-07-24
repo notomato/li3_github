@@ -38,24 +38,23 @@ class GitHub extends \lithium\data\source\Http {
 	 * @param array $config Configuration options.
 	 */
 	public function __construct(array $config = array()) {
-		if(!empty($config['token'])) {
-			$login = $config['login'] . '/token';
-			$password = $config['token'];
-		} else {
-			$login = $config['login'];
-			$password = $config['password'];
-		}
 		$defaults = array(
 			'adapter'  => 'GitHub',
 			'token'    => null,
 			'scheme'   => 'https',
-			'auth'     => 'Basic',
 			'version'  => '1.1',
 			'host'     => 'api.github.com',
 			'port'     => 443,
 			'path'     => '',
+			'headers'  => array('Accept' => 'application/vnd.github.beta+json')
 		);
-		parent::__construct(compact('login', 'password') + $config + $defaults);
+		if (!empty($config['token'])) {
+			$defaults['headers'] += array("Authorization" => "token {$config['token']}");
+		}
+		if (!empty($config['login']) && !empty($config['password'])) {
+			$defaults['auth'] = "Basic";
+		}
+		parent::__construct($config + $defaults);
 	}
 
 	/**
@@ -66,12 +65,15 @@ class GitHub extends \lithium\data\source\Http {
 	 * @return mixed
 	 */
 	public function read($query, array $options = array()) {
+
+
 		extract($query->export($this));
 		$path = $this->_path($source, $conditions);
 		foreach ($this->_params as $param) {
 			unset($conditions[$param]);
 		}
-		$result = $this->connection->get($path, $conditions);
+		$options =  array('headers' => $this->_config['headers']);
+		$result = $this->connection->get($path, $conditions, $options);
 		$data = json_decode($result, true);
 
 		if (empty($data)) {
@@ -92,7 +94,7 @@ class GitHub extends \lithium\data\source\Http {
 		$conditions = $query->entity()->_config;
 		$path = $this->_path($source, $conditions);
 		$options = array(
-			'headers' => array('Content-Type' => 'application/json'),
+			'headers' => array('Content-Type' => 'application/json') + $this->_config['headers'],
 			'follow_location' => false,
 			'type' => 'json'
 		);
