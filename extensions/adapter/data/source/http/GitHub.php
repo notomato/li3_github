@@ -14,6 +14,7 @@ class GitHub extends \lithium\data\source\Http {
 
 	protected $_strings = array(
 		'users' => '/users/{:user}/{:type}',
+		'user' => '/user/{:user}/{:type}',
 		'issues' => '/issues',
 		'repos' => '/repos/{:user}/{:repo}/{:type}/{:id}',
 		'orgs' => '/orgs/{:org}/{:type}'
@@ -65,8 +66,6 @@ class GitHub extends \lithium\data\source\Http {
 	 * @return mixed
 	 */
 	public function read($query, array $options = array()) {
-
-
 		extract($query->export($this));
 		$path = $this->_path($source, $conditions);
 		foreach ($this->_params as $param) {
@@ -78,6 +77,9 @@ class GitHub extends \lithium\data\source\Http {
 
 		if (empty($data)) {
 			return null;
+		}
+		if (empty($data[0])) {
+			return $this->item($query->model(), compact('data'), array('class' => 'entity'));
 		}
 		return $this->item($query->model(), $data, array('class' => 'set'));
 	}
@@ -116,9 +118,7 @@ class GitHub extends \lithium\data\source\Http {
 			if (!is_array($val)) {
 				continue;
 			}
-			$class = 'entity';
-			$model = $entity->model();
-			$data[$key] = $this->item($model, $val, compact('class'));
+			$data[$key] = $this->item($entity->model(), $val, array('class' => 'entity'));
 		}
 		return parent::cast($entity, $data, $options);
 	}
@@ -130,16 +130,16 @@ class GitHub extends \lithium\data\source\Http {
 	 * @param array $conditions
 	 * @return string
 	 */
-	protected function _path($source, array $conditions = array()) {
+	protected function _path($source, $conditions = array()) {
 		if (!isset($this->_strings[$source])) {
 			return null;
 		}
 		$string = $this->_strings[$source];
 		$conditions = array_map(function($value) {
 			return is_string($value) ? urlencode($value) : null;
-		}, $conditions);
+		}, (array) $conditions);
 		$path = String::insert($string, $conditions, array('clean' => true));
-		$path = rtrim(str_replace('//', '', $path), '/');
+		$path = rtrim(str_replace('//', '/', $path), '/');
 		return $path;
 	}
 }
