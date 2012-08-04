@@ -19,4 +19,10 @@ Users::finder('orgs', function($self, $params, $chain) {
 	return $data;
 });
 
+Users::finder('gists', function($self, $params, $chain) {
+	$params['options']['conditions']['type'] = 'gists';
+	$data = $chain->next($self, $params, $chain);
+	return $data;
+});
+
 ?>

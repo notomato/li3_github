@@ -17,7 +17,9 @@ class GitHub extends \lithium\data\source\Http {
 		'user' => '/user/{:user}/{:type}',
 		'issues' => '/issues',
 		'repos' => '/repos/{:user}/{:repo}/{:type}/{:id}',
-		'orgs' => '/orgs/{:org}/{:type}'
+		'orgs' => '/orgs/{:org}/{:type}',
+		'gist' => '/gists/{:id}',
+		'gists' => '/gists/{:type}'
 	);
 
 	protected $_params = array(
