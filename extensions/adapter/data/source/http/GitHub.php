@@ -18,7 +18,7 @@ class GitHub extends \lithium\data\source\Http {
 		'issues' => '/issues',
 		'repos' => '/repos/{:user}/{:repo}/{:type}/{:id}',
 		'orgs' => '/orgs/{:org}/{:type}',
-		'gist' => '/gists/{:id}',
+		'gist' => '/gists/{:id}/{:type}',
 		'gists' => '/gists/{:type}'
 	);
 
