@@ -33,6 +33,7 @@ class GitHub extends \lithium\data\source\Http {
 		'service' => 'lithium\net\http\Service',
 		'entity' => 'lithium\data\entity\Document',
 		'set' => 'lithium\data\collection\DocumentSet',
+        'schema' => 'lithium\data\DocumentSchema'
 	);
 
 	/**
@@ -74,8 +75,7 @@ class GitHub extends \lithium\data\source\Http {
 			unset($conditions[$param]);
 		}
 		$options =  array('headers' => $this->_config['headers']);
-		$result = $this->connection->get($path, $conditions, $options);
-		$data = json_decode($result, true);
+        $data = $this->connection->get($path, $conditions, $options);
 
 		if (empty($data)) {
 			return null;
