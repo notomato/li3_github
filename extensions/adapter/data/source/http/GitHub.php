@@ -125,6 +125,23 @@ class GitHub extends \lithium\data\source\Http {
 		return parent::cast($entity, $data, $options);
 	}
 
+    /**
+     * Returns a newly-created `Document` object, bound to a model and populated with default data
+     * and options.
+     *
+     * @param string $model A fully-namespaced class name representing the model class to which the
+     *               `Document` object will be bound.
+     * @param array $data The default data with which the new `Document` should be populated.
+     * @param array $options Any additional options to pass to the `Document`'s constructor
+     * @return object Returns a new, un-saved `Document` object bound to the model class specified
+     *         in `$model`.
+     */
+    public function item($model, array $data = array(), array $options = array()) {
+        $defaults = array('class' => 'entity');
+        $options += $defaults;
+        return $model::create($data, $options);
+    }
+
 	/**
 	 * Convert conditions to a path
 	 *
