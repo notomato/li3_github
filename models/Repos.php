@@ -26,34 +26,40 @@ Repos::finder('collaborators', function($self, $params, $chain) {
 });
 
 Repos::finder('contributors', function($self, $params, $chain) {
+	$params['options']['conditions']['type'] = 'contributors';
+	$data = $chain->next($self, $params, $chain);
+	return $data;
+});
+
+Repos::finder('contributorsStats', function($self, $params, $chain) {
 	$params['options']['conditions']['type'] = 'stats';
 	$params['options']['conditions']['id'] = 'contributors';
 	$data = $chain->next($self, $params, $chain);
 	return $data;
 });
 
-Repos::finder('commit_activity', function($self, $params, $chain) {
+Repos::finder('activityStats', function($self, $params, $chain) {
 	$params['options']['conditions']['type'] = 'stats';
 	$params['options']['conditions']['id'] = 'commit_activity';
 	$data = $chain->next($self, $params, $chain);
 	return $data;
 });
 
-Repos::finder('code_frequency', function($self, $params, $chain) {
+Repos::finder('frequencyStats', function($self, $params, $chain) {
 	$params['options']['conditions']['type'] = 'stats';
 	$params['options']['conditions']['id'] = 'code_frequency';
 	$data = $chain->next($self, $params, $chain);
 	return $data;
 });
 
-Repos::finder('participation', function($self, $params, $chain) {
+Repos::finder('participationStats', function($self, $params, $chain) {
 	$params['options']['conditions']['type'] = 'stats';
 	$params['options']['conditions']['id'] = 'participation';
 	$data = $chain->next($self, $params, $chain);
 	return $data;
 });
 
-Repos::finder('punch_card', function($self, $params, $chain) {
+Repos::finder('punchCard', function($self, $params, $chain) {
 	$params['options']['conditions']['type'] = 'stats';
 	$params['options']['conditions']['id'] = 'punch_card';
 	$data = $chain->next($self, $params, $chain);

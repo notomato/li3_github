@@ -83,7 +83,7 @@ class GitHub extends \lithium\data\source\Http {
 		if (empty($data[0])) {
 			return $this->item($query->model(), compact('data'), array('class' => 'entity'));
 		}
-		return $this->item($query->model(), $data, array('class' => 'set'));
+		return $this->item($query->model(), (array) $data, array('class' => 'set'));
 	}
 
 	/**
