@@ -1,13 +1,17 @@
 {
     "name": "notomato/li3_github",
     "description": "A Lithium data source for the Github API",
+    "type": "lithium-library"
     "authors": [
+        {
+            "name": "Gwoo"
+        },
         {
             "name": "Christian Foster",
             "email": "christian.foster@gmail.com"
         }
     ],
     "require": {
-
+        "composer/installers": "*"
     }
 }
