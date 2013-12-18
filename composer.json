@@ -1,7 +1,7 @@
 {
     "name": "notomato/li3_github",
     "description": "A Lithium data source for the Github API",
-    "type": "lithium-library"
+    "type": "lithium-library",
     "authors": [
         {
             "name": "Gwoo"
