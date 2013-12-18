@@ -1,0 +1,13 @@
+{
+    "name": "notomato/li3_github",
+    "description": "A Lithium data source for the Github API",
+    "authors": [
+        {
+            "name": "Christian Foster",
+            "email": "christian.foster@gmail.com"
+        }
+    ],
+    "require": {
+
+    }
+}
